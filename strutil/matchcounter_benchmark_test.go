@@ -23,7 +23,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/snapcore/snapd/strutil"
+	"github.com/canonical/golib/strutil"
 )
 
 func benchmarkMatchCounter(b *testing.B, wrx *regexp.Regexp, wn int) {

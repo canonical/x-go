@@ -27,7 +27,7 @@ import (
 
 	"gopkg.in/check.v1"
 
-	"github.com/snapcore/snapd/strutil"
+	"github.com/canonical/golib/strutil"
 )
 
 func Test(t *testing.T) { check.TestingT(t) }

@@ -23,8 +23,34 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/snapcore/snapd/i18n"
+	"github.com/canonical/golib/i18n"
 )
+
+// Common package strings with translation support
+//
+// Note: This may not be converted as part of global 'const' or 'var'
+// variables, and also not inside 'init()'. The i18n implementation
+// is only available after early initialisation.
+
+func secs() rune {
+	return []rune(i18n.G("s"))[0]
+}
+
+func mins() rune {
+	return []rune(i18n.G("m"))[0]
+}
+
+func hours() rune {
+	return []rune(i18n.G("h"))[0]
+}
+
+func days() rune {
+	return []rune(i18n.G("d"))[0]
+}
+
+func years() rune {
+	return []rune(i18n.G("y"))[0]
+}
 
 // these are taken from github.com/chipaca/quantity with permission :-)
 
@@ -97,27 +123,13 @@ func divmod(a, b float64) (q, r float64) {
 	return q, a - q*b
 }
 
-var (
-	// TRANSLATORS: this needs to be a single rune that is understood to mean "seconds" in e.g. 1m30s
-	//    (I fully expect this to always be "s", given it's a SI unit)
-	secs = i18n.G("s")
-	// TRANSLATORS: this needs to be a single rune that is understood to mean "minutes" in e.g. 1m30s
-	mins = i18n.G("m")
-	// TRANSLATORS: this needs to be a single rune that is understood to mean "hours" in e.g. 1h30m
-	hours = i18n.G("h")
-	// TRANSLATORS: this needs to be a single rune that is understood to mean "days" in e.g. 1d20h
-	days = i18n.G("d")
-	// TRANSLATORS: this needs to be a single rune that is understood to mean "years" in e.g. 1y45d
-	years = i18n.G("y")
-)
-
 // dt is seconds (as in the output of time.Now().Seconds())
 func FormatDuration(dt float64) string {
 	if dt < 60 {
 		if dt >= 9.995 {
-			return fmt.Sprintf("%.1f%s", dt, secs)
+			return fmt.Sprintf("%.1f%c", dt, secs())
 		} else if dt >= .9995 {
-			return fmt.Sprintf("%.2f%s", dt, secs)
+			return fmt.Sprintf("%.2f%c", dt, secs())
 		}
 
 		var prefix rune
@@ -129,68 +141,68 @@ func FormatDuration(dt float64) string {
 		}
 
 		if dt > 9.5 {
-			return fmt.Sprintf("%3.f%c%s", dt, prefix, secs)
+			return fmt.Sprintf("%3.f%c%c", dt, prefix, secs())
 		}
 
-		return fmt.Sprintf("%.1f%c%s", dt, prefix, secs)
+		return fmt.Sprintf("%.1f%c%c", dt, prefix, secs())
 	}
 
 	if dt < 600 {
 		m, s := divmod(dt, 60)
-		return fmt.Sprintf("%.f%s%02.f%s", m, mins, s, secs)
+		return fmt.Sprintf("%.f%c%02.f%c", m, mins(), s, secs())
 	}
 
 	dt /= 60 // dt now minutes
 
 	if dt < 99.95 {
-		return fmt.Sprintf("%3.1f%s", dt, mins)
+		return fmt.Sprintf("%3.1f%c", dt, mins())
 	}
 
 	if dt < 10*60 {
 		h, m := divmod(dt, 60)
-		return fmt.Sprintf("%.f%s%02.f%s", h, hours, m, mins)
+		return fmt.Sprintf("%.f%c%02.f%c", h, hours(), m, mins())
 	}
 
 	if dt < 24*60 {
 		if h, m := divmod(dt, 60); m < 10 {
-			return fmt.Sprintf("%.f%s%1.f%s", h, hours, m, mins)
+			return fmt.Sprintf("%.f%c%1.f%c", h, hours(), m, mins())
 		}
 
-		return fmt.Sprintf("%3.1f%s", dt/60, hours)
+		return fmt.Sprintf("%3.1f%c", dt/60, hours())
 	}
 
 	dt /= 60 // dt now hours
 
 	if dt < 10*24 {
 		d, h := divmod(dt, 24)
-		return fmt.Sprintf("%.f%s%02.f%s", d, days, h, hours)
+		return fmt.Sprintf("%.f%c%02.f%c", d, days(), h, hours())
 	}
 
 	if dt < 99.95*24 {
 		if d, h := divmod(dt, 24); h < 10 {
-			return fmt.Sprintf("%.f%s%.f%s", d, days, h, hours)
+			return fmt.Sprintf("%.f%c%.f%c", d, days(), h, hours())
 		}
-		return fmt.Sprintf("%4.1f%s", dt/24, days)
+		return fmt.Sprintf("%4.1f%c", dt/24, days())
 	}
 
 	dt /= 24 // dt now days
 
 	if dt < 2*period {
-		return fmt.Sprintf("%4.0f%s", dt, days)
+		return fmt.Sprintf("%4.0f%c", dt, days())
 	}
 
 	dt /= period // dt now years
 
 	if dt < 9.995 {
-		return fmt.Sprintf("%4.2f%s", dt, years)
+		return fmt.Sprintf("%4.2f%c", dt, years())
 	}
 
 	if dt < 99.95 {
-		return fmt.Sprintf("%4.1f%s", dt, years)
+		return fmt.Sprintf("%4.1f%c", dt, years())
 	}
 
 	if dt < 999.5 {
-		return fmt.Sprintf("%4.f%s", dt, years)
+		return fmt.Sprintf("%4.f%c", dt, years())
 	}
 
 	if dt > math.MaxUint64 || uint64(dt) == 0 {
@@ -198,5 +210,5 @@ func FormatDuration(dt float64) string {
 		return "ages!"
 	}
 
-	return FormatAmount(uint64(dt), 4) + years
+	return FormatAmount(uint64(dt), 4) + string(years())
 }

@@ -27,7 +27,7 @@ import (
 
 	. "gopkg.in/check.v1"
 
-	"github.com/snapcore/snapd/strutil/quantity"
+	"github.com/canonical/golib/strutil/quantity"
 )
 
 func Test(t *testing.T) { TestingT(t) }
