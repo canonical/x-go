@@ -1,7 +1,9 @@
 
-# golib: A collection of generally useful packages
+# x-go: A collection of generally useful Go packages
 
-**golib** provides a central place where packages shared between projects can live.
+This Go library provides a central place for common packages.
+
+Initially, contributions will be limited to packages used by [Snapd](https://github.com/snapcore/snapd), [Pebble](https://github.com/canonical/pebble) or [Chisel](https://github.com/canonical/chisel).
 
 ## Contributing
 
