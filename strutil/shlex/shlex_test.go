@@ -141,10 +141,10 @@ func TestEOFInComment(t *testing.T) {
 
 type nastyReader struct{}
 
-var nastyReaderErr = errors.New("foo")
+var errNastyReader = errors.New("foo")
 
 func (*nastyReader) Read(_ []byte) (int, error) {
-	return 0, nastyReaderErr
+	return 0, errNastyReader
 }
 
 func TestNastyReader(t *testing.T) {
@@ -153,7 +153,7 @@ func TestNastyReader(t *testing.T) {
 	if err == nil {
 		t.Errorf("expected an error, got nil instead")
 	}
-	if err != nastyReaderErr {
+	if err != errNastyReader {
 		t.Errorf("unexpected error")
 	}
 }
