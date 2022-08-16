@@ -21,7 +21,6 @@ package i18n_test
 
 import (
 	"fmt"
-	"reflect"
 	"testing"
 
 	"gopkg.in/check.v1"
@@ -36,18 +35,10 @@ type i18nSuite struct{}
 var _ = check.Suite(&i18nSuite{})
 
 func (ts *i18nSuite) TestDefaults(c *check.C) {
-	var call, callDefault reflect.Value
-
 	// i18n.G
-	call = reflect.ValueOf(i18n.G)
-	callDefault = reflect.ValueOf(i18n.GDefault)
-	c.Check(call.Pointer(), check.Equals, callDefault.Pointer(), check.Commentf("expected i18n.G == i18n.GDefault"))
 	c.Check(i18n.G("Hello"), check.Equals, "Hello", check.Commentf("expected output unchanged"))
 
 	// i18n.NG
-	call = reflect.ValueOf(i18n.NG)
-	callDefault = reflect.ValueOf(i18n.NGDefault)
-	c.Check(call.Pointer(), check.Equals, callDefault.Pointer(), check.Commentf("expected i18n.NG == i18n.NGDefault"))
 	c.Check(i18n.NG("Hello", "Hellos", 0), check.Equals, "Hellos", check.Commentf("expected plural form"))
 	c.Check(i18n.NG("Hello", "Hellos", 1), check.Equals, "Hello", check.Commentf("expected singular form"))
 	c.Check(i18n.NG("Hello", "Hellos", 2), check.Equals, "Hellos", check.Commentf("expected plural form"))
@@ -56,6 +47,10 @@ func (ts *i18nSuite) TestDefaults(c *check.C) {
 func (ts *i18nSuite) TestOverrides(c *check.C) {
 	i18n.G = func(msgid string) string { return "something" }
 	i18n.NG = func(msgid, msgid2 string, n int) string { return fmt.Sprintf("%s%d", "something", n) }
+	defer func() {
+		i18n.G = i18n.GDefault
+		i18n.NG = i18n.NGDefault
+	}()
 
 	// i18n.G
 	c.Check(i18n.G("Hello"), check.Equals, "something", check.Commentf("expected translated output"))

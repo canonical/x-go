@@ -32,24 +32,24 @@ import (
 // variables, and also not inside 'init()'. The i18n implementation
 // is only available after early initialisation.
 
-func secs() rune {
-	return []rune(i18n.G("s"))[0]
+func secs() string {
+	return i18n.G("s")
 }
 
-func mins() rune {
-	return []rune(i18n.G("m"))[0]
+func mins() string {
+	return i18n.G("m")
 }
 
-func hours() rune {
-	return []rune(i18n.G("h"))[0]
+func hours() string {
+	return i18n.G("h")
 }
 
-func days() rune {
-	return []rune(i18n.G("d"))[0]
+func days() string {
+	return i18n.G("d")
 }
 
-func years() rune {
-	return []rune(i18n.G("y"))[0]
+func years() string {
+	return i18n.G("y")
 }
 
 // these are taken from github.com/chipaca/quantity with permission :-)
@@ -127,9 +127,9 @@ func divmod(a, b float64) (q, r float64) {
 func FormatDuration(dt float64) string {
 	if dt < 60 {
 		if dt >= 9.995 {
-			return fmt.Sprintf("%.1f%c", dt, secs())
+			return fmt.Sprintf("%.1f%.1s", dt, secs())
 		} else if dt >= .9995 {
-			return fmt.Sprintf("%.2f%c", dt, secs())
+			return fmt.Sprintf("%.2f%.1s", dt, secs())
 		}
 
 		var prefix rune
@@ -141,68 +141,68 @@ func FormatDuration(dt float64) string {
 		}
 
 		if dt > 9.5 {
-			return fmt.Sprintf("%3.f%c%c", dt, prefix, secs())
+			return fmt.Sprintf("%3.f%c%.1s", dt, prefix, secs())
 		}
 
-		return fmt.Sprintf("%.1f%c%c", dt, prefix, secs())
+		return fmt.Sprintf("%.1f%c%.1s", dt, prefix, secs())
 	}
 
 	if dt < 600 {
 		m, s := divmod(dt, 60)
-		return fmt.Sprintf("%.f%c%02.f%c", m, mins(), s, secs())
+		return fmt.Sprintf("%.f%.1s%02.f%.1s", m, mins(), s, secs())
 	}
 
 	dt /= 60 // dt now minutes
 
 	if dt < 99.95 {
-		return fmt.Sprintf("%3.1f%c", dt, mins())
+		return fmt.Sprintf("%3.1f%.1s", dt, mins())
 	}
 
 	if dt < 10*60 {
 		h, m := divmod(dt, 60)
-		return fmt.Sprintf("%.f%c%02.f%c", h, hours(), m, mins())
+		return fmt.Sprintf("%.f%.1s%02.f%.1s", h, hours(), m, mins())
 	}
 
 	if dt < 24*60 {
 		if h, m := divmod(dt, 60); m < 10 {
-			return fmt.Sprintf("%.f%c%1.f%c", h, hours(), m, mins())
+			return fmt.Sprintf("%.f%.1s%1.f%.1s", h, hours(), m, mins())
 		}
 
-		return fmt.Sprintf("%3.1f%c", dt/60, hours())
+		return fmt.Sprintf("%3.1f%.1s", dt/60, hours())
 	}
 
 	dt /= 60 // dt now hours
 
 	if dt < 10*24 {
 		d, h := divmod(dt, 24)
-		return fmt.Sprintf("%.f%c%02.f%c", d, days(), h, hours())
+		return fmt.Sprintf("%.f%.1s%02.f%.1s", d, days(), h, hours())
 	}
 
 	if dt < 99.95*24 {
 		if d, h := divmod(dt, 24); h < 10 {
-			return fmt.Sprintf("%.f%c%.f%c", d, days(), h, hours())
+			return fmt.Sprintf("%.f%.1s%.f%.1s", d, days(), h, hours())
 		}
-		return fmt.Sprintf("%4.1f%c", dt/24, days())
+		return fmt.Sprintf("%4.1f%.1s", dt/24, days())
 	}
 
 	dt /= 24 // dt now days
 
 	if dt < 2*period {
-		return fmt.Sprintf("%4.0f%c", dt, days())
+		return fmt.Sprintf("%4.0f%.1s", dt, days())
 	}
 
 	dt /= period // dt now years
 
 	if dt < 9.995 {
-		return fmt.Sprintf("%4.2f%c", dt, years())
+		return fmt.Sprintf("%4.2f%.1s", dt, years())
 	}
 
 	if dt < 99.95 {
-		return fmt.Sprintf("%4.1f%c", dt, years())
+		return fmt.Sprintf("%4.1f%.1s", dt, years())
 	}
 
 	if dt < 999.5 {
-		return fmt.Sprintf("%4.f%c", dt, years())
+		return fmt.Sprintf("%4.f%.1s", dt, years())
 	}
 
 	if dt > math.MaxUint64 || uint64(dt) == 0 {
@@ -210,5 +210,5 @@ func FormatDuration(dt float64) string {
 		return "ages!"
 	}
 
-	return FormatAmount(uint64(dt), 4) + string(years())
+	return FormatAmount(uint64(dt), 4) + years()
 }

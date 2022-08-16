@@ -35,7 +35,7 @@
 
 package i18n
 
-// The following public i18n variables (function pointers) defines the
+// The following public i18n function variables define the
 // internationalisation marker API available. An implementation specific
 // version can be provided by the application or alternatively if left
 // unmodified the default functions will by used (translation disabled).
@@ -57,8 +57,8 @@ func NGDefault(msgid string, msgidPlural string, n int) string {
 	if n == 1 {
 		// Singular
 		return msgid
-	} else {
-		// Plural
-		return msgidPlural
 	}
+
+	// Plural
+	return msgidPlural
 }
