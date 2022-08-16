@@ -22,7 +22,7 @@ package strutil_test
 import (
 	"testing"
 
-	"github.com/snapcore/snapd/strutil"
+	"github.com/canonical/x-go/strutil"
 )
 
 var versions = []string{
