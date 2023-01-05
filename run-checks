@@ -1,0 +1,181 @@
+#!/bin/bash
+
+# shellcheck disable=SC2145
+
+REPOROOT=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+#----------------------------------------------------#
+# PRINTING ROUTINES                                  #
+#----------------------------------------------------#
+
+P_RESET="\e[0m"
+P_RED="\e[31m"
+P_GREEN="\e[32m"
+
+print_newline() {
+	echo -e "$P_RESET"
+}
+
+print_normal() {
+	echo -e "$P_RESET$@"
+}
+
+print_red() {
+	echo -e "$P_RED$@$P_RESET"
+}
+
+print_green() {
+	echo -e "$P_GREEN$@$P_RESET"
+}
+
+print_special() {
+	echo -ne "$P_RESET$@"
+}
+
+#----------------------------------------------------#
+# TEST CONTROL                                       #
+#----------------------------------------------------#
+
+# If started with:
+# VERBOSE=1 ./run-checks
+# Verbose print everything, not only failures
+VERBOSE=${VERBOSE:-0}
+
+# Number of tests that failed
+FAILED=0
+
+# Run a test and fail based on a non-zero exit code
+#
+# Verbose print the failure case unless VERBOSE=1, in
+# which case verbose print everything (useful for CI
+# logs).
+#
+# Argument $1: Test string description
+# Argument $2..$n: Test command line
+#
+test_check_exit_code() {
+	print_special "=> $1"
+	OUTPUT=$(mktemp)
+	v=$(exec 2>&1 && set -x && set -- "${@:2}")
+
+	set +e
+	"${@:2}" > "$OUTPUT" 2>&1
+
+	# shellcheck disable=SC2181
+	if [ $? -ne 0 ]; then
+                print_red "Fail"
+                print_newline
+		print_red "Command: ${v#*--}"
+                print_newline
+		cat "$OUTPUT"
+		print_newline
+                FAILED=$((FAILED + 1))
+	else
+		print_green "Pass"
+		if [ "$VERBOSE" = "1" ]; then
+	                print_newline
+			print_normal "Command: ${v#*--}"
+			print_newline
+			cat "$OUTPUT"
+			print_newline
+		fi
+	fi
+	set -e
+	rm -f "$OUTPUT"
+}
+
+
+# Run a test and fail based on non-zero output lines
+#
+# Verbose print the failure case unless VERBOSE=1, in
+# which case verbose print everything (useful for CI
+# logs).
+#
+# Argument $1: Test string description
+# Argument $2..$n: Test command line
+#
+test_check_no_output() {
+	print_special "=> $1"
+	OUTPUT=$(mktemp)
+	v=$(exec 2>&1 && set -x && set -- "${@:2}")
+
+	set +e
+	"${@:2}" > "$OUTPUT" 2>&1
+
+	if [ "$(wc -l < "$OUTPUT")" != "0"  ]; then
+                print_red "Fail"
+                print_newline
+		print_red "Command: ${v#*--}"
+                print_newline
+		cat "$OUTPUT"
+		print_newline
+                FAILED=$((FAILED + 1))
+	else
+		print_green "Pass"
+		if [ "$VERBOSE" = "1" ]; then
+	                print_newline
+			print_normal "Command: ${v#*--}"
+			print_newline
+			cat "$OUTPUT"
+			print_newline
+		fi
+	fi
+	set -e
+	rm -f "$OUTPUT"
+}
+
+#----------------------------------------------------#
+# SETUP                                              #
+#----------------------------------------------------#
+
+SC=staticcheck_linux_amd64.tar.gz
+SC_URL=https://github.com/dominikh/go-tools/releases/download/v0.3.3/$SC
+SC_MD5SUM=67db1a3a89fdd4f69052fe5ba9f978ad
+
+# Get the Go mayor and minor as an integer for version
+# decisions, i.e: v1.19.4 => 119
+GOVER=$(go version | cut -d' ' -f3 | cut -d'.' -f1-2 | sed 's/\.//g' | sed 's/go//g')
+
+# Install staticcheck in a way compatible with the version
+# of go we have installed.
+if [ "$GOVER" -ge 118 ]; then
+	which staticcheck > /dev/null || go install honnef.co/go/tools/cmd/staticcheck@latest
+	GOBIN=$(go env GOPATH)/bin
+	export PATH=$PATH:$GOBIN
+else
+	mkdir -p "$REPOROOT"/downloads	
+	pushd "$REPOROOT"/downloads > /dev/null
+	if [ ! -f $SC ] ||  [ "$(md5sum $SC | cut -d' ' -f1)" != "$SC_MD5SUM" ]; then
+		rm -f $SC
+		wget -q "$SC_URL"
+	fi
+	if [ ! -f staticcheck/staticcheck ]; then
+		tar xzf staticcheck_linux_amd64.tar.gz
+	fi
+	SCBIN=$(pwd)/staticcheck
+	export PATH=$PATH:"$SCBIN"
+	popd > /dev/null
+fi
+
+#----------------------------------------------------#
+# TESTS                                              #
+#----------------------------------------------------#
+
+test_check_exit_code "Build ... " go build ./...
+test_check_exit_code "Vet ... " go vet ./...
+test_check_exit_code "Unit Tests ... " go test ./...
+test_check_exit_code "Static-check ... " staticcheck ./...
+
+test_check_no_output "Formatting ... " gofmt -d .
+
+if [ $FAILED -eq 0 ]; then
+	print_newline
+	print_green "Good news everyone ... all checks passed!"
+	print_newline
+	exit 0
+else
+	print_newline
+	print_red "Bad news everyone ... $FAILED checks failed!"
+	print_newline
+	exit 1
+fi
