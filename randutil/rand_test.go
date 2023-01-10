@@ -26,7 +26,7 @@ import (
 
 	. "gopkg.in/check.v1"
 
-	"github.com/snapcore/snapd/randutil"
+	"github.com/canonical/x-go/randutil"
 )
 
 func Test(t *testing.T) { TestingT(t) }
