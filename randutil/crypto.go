@@ -49,11 +49,14 @@ func CryptoToken(nbytes int) (string, error) {
 	return base64.RawURLEncoding.EncodeToString(b), nil
 }
 
+// Allow mocking of the path for testing purposes.
+var KernelUUIDPath = "/proc/sys/kernel/random/uuid"
+
 // RandomKernelUUID will return a UUID from the kernel's procfs API at
 // /proc/sys/kernel/random/uuid. Only to be used in very specific uses, most
 // random code should use CryptoToken(Bytes) instead.
 func RandomKernelUUID() (string, error) {
-	b, err := ioutil.ReadFile("/proc/sys/kernel/random/uuid")
+	b, err := ioutil.ReadFile(KernelUUIDPath)
 	if err != nil {
 		return "", err
 	}
