@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# shellcheck disable=SC2145
-
 #----------------------------------------------------#
 # PRINTING ROUTINES                                  #
 #----------------------------------------------------#
@@ -15,19 +13,19 @@ print_newline() {
 }
 
 print_normal() {
-	echo -e "$P_RESET$@"
+	echo -e "$P_RESET$*"
 }
 
 print_red() {
-	echo -e "$P_RED$@$P_RESET"
+	echo -e "$P_RED$*$P_RESET"
 }
 
 print_green() {
-	echo -e "$P_GREEN$@$P_RESET"
+	echo -e "$P_GREEN$*$P_RESET"
 }
 
 print_special() {
-	echo -ne "$P_RESET$@"
+	echo -ne "$P_RESET$*"
 }
 
 #----------------------------------------------------#
@@ -144,18 +142,27 @@ run() {
         fi
 }
 
+# Install staticcheck from the correct source so that it
+# will compile and install for the Go version on the host.
+#
+# shellcheck disable=SC2317
+# Disable "command appears to be unreachable" warnings. This function
+# is indirectly called through run(), which confuses shellcheck.
+#
 install_staticcheck() {
-    pkg="honnef.co/go/tools/cmd/staticcheck"
-    # go1.18+ will no longer build/install packages. Here "go install"
-    # must be used but it will only fetch remote packages if the @latest
-    # (or similar syntax is used). Instead of checking the version we
-    # check if the "go install" help mentions this new feature.
-    if go help install | grep -q @latest; then
-	# Go v1.8+
-        go install "${pkg}"@latest
+    # We build from source to make this architecture independent.
+    # However, staticcheck releases are dependent on specific Go
+    # versions, so we cannot simply build the latest.
+    PKG="honnef.co/go/tools/cmd/staticcheck"
+    GO_VERSION="$(go version | cut -d' ' -f3 | cut -d'.' -f1-2 | sed 's/go//' | sed 's/\.//')"
+
+    # This list will be updated as x-go moves to later Go versions.
+    if [ "$GO_VERSION" -ge "118" ]; then
+        # Go v1.18
+        go install "${PKG}@2022.1.3"
     else
-	# Go v1.3
-        go get "${pkg}@2019.2.3"
+        # Go v1.14
+        go get "${PKG}@2021.1.2"
     fi
 }
 
