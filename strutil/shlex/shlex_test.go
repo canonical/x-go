@@ -157,3 +157,105 @@ func TestNastyReader(t *testing.T) {
 		t.Errorf("unexpected error")
 	}
 }
+
+var quoteTests = []struct {
+	name     string
+	input    string
+	expected string
+}{{
+	name:     `empty`,
+	input:    ``,
+	expected: `''`,
+}, {
+	name:     `quote safe`,
+	input:    "abcdefghijklmnopqrstuvwxyz" + "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789" + "@%_-+=:,./",
+	expected: "abcdefghijklmnopqrstuvwxyz" + "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789" + "@%_-+=:,./",
+}, {
+	name:     `spaces`,
+	input:    `foo bar xyz`,
+	expected: `'foo bar xyz'`,
+}, {
+	name:     `double quotation`,
+	input:    `foo"bar`,
+	expected: `'foo"bar'`,
+}, {
+	name:     `backtick`,
+	input:    "foo`bar",
+	expected: "'foo`bar'",
+}, {
+	name:     `backslash`,
+	input:    `foo\bar`,
+	expected: `'foo\bar'`,
+}, {
+	name:     `unicode`,
+	input:    "foo\xe9bar",
+	expected: "'foo\xe9bar'",
+}, {
+	name:     `single quote with exclamation point`,
+	input:    `foo!'bar'`,
+	expected: `'foo!'"'"'bar'"'"''`,
+}, {
+	name:     `single quote with dollar`,
+	input:    `'foo$'bar`,
+	expected: `''"'"'foo$'"'"'bar'`,
+}}
+
+func TestQuote(t *testing.T) {
+	for _, test := range quoteTests {
+		t.Run(test.name, func(t *testing.T) {
+			quoted := Quote(test.input)
+			if quoted != test.expected {
+				t.Errorf("expected %s, got %s", test.expected, quoted)
+			}
+		})
+	}
+}
+
+var joinTests = []struct {
+	name     string
+	input    []string
+	expected string
+}{{
+	name:     `space in first arg`,
+	input:    []string{`a `, `b`},
+	expected: `'a ' b`,
+}, {
+	name:     `space in last arg`,
+	input:    []string{`a`, ` b`},
+	expected: `a ' b'`,
+}, {
+	name:     `space as an arg`,
+	input:    []string{`a`, ` `, `b`},
+	expected: `a ' ' b`,
+}, {
+	name:     `empty arg`,
+	input:    []string{`a`, ``, `b`},
+	expected: `a '' b`,
+}, {
+	name:     `double quotes in arg`,
+	input:    []string{`"a`, `b"`},
+	expected: `'"a' 'b"'`,
+}, {
+	name:     `long args`,
+	input:    []string{`x y`, `/foo/bar`},
+	expected: `'x y' /foo/bar`,
+}, {
+	name:     `empty slice`,
+	input:    []string{},
+	expected: ``,
+}, {
+	name:     `nil slice`,
+	input:    nil,
+	expected: ``,
+}}
+
+func TestJoin(t *testing.T) {
+	for _, test := range joinTests {
+		t.Run(test.name, func(t *testing.T) {
+			joined := Join(test.input)
+			if joined != test.expected {
+				t.Errorf("expected %s, got %s", test.expected, joined)
+			}
+		})
+	}
+}
