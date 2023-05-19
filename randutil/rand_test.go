@@ -91,8 +91,8 @@ func (s *randutilSuite) TestRandomDuration(c *C) {
 	}
 }
 
-func (s *randutilSuite) TestRandomDurationWithSeedDatePidHostMac(c *C) {
-	r := randutil.NewPseudoRand(randutil.SeedDatePidHostMac)
+func (s *randutilSuite) TestRandomDurationWithFleetDeviceSeeder(c *C) {
+	r := randutil.NewPseudoRand(randutil.FleetDeviceSeeder)
 	d := r.RandomDuration(time.Hour)
 	c.Check(d < time.Hour, Equals, true)
 }

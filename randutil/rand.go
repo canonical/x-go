@@ -34,24 +34,22 @@ import (
 	"time"
 )
 
-var defaultSeeder = SeedDatePid
-
-// SeedDatePid provides a basic seed value based only on
+// DefaultSeeder provides a basic seed value based only on
 // time and os PID value.
-func SeedDatePid() int64 {
+func DefaultSeeder() int64 {
 	return time.Now().UnixNano() + int64(os.Getpid())
 }
 
-// SeedDatePidHostMac provides a seed value that in addition to
+// FleetDeviceSeeder provides a seed value that in addition to
 // time and os PID, also takes into account the device hostname
 // and network inteface MAC addresses. This may be required when
 // you are trying to randomize the time of actions within a
 // fleet of similar devices, where the time and PID values may
 // not provide enough variance within the device pool.
-func SeedDatePidHostMac() int64 {
+func FleetDeviceSeeder() int64 {
 	// Use a pseudo RNG initially for time and pid inclusion
 	var b [8]byte
-	pr := NewPseudoRand(SeedDatePid)
+	pr := NewPseudoRand(DefaultSeeder)
 	pr.rand.Read(b[:])
 
 	h := sha256.New224()
@@ -72,10 +70,10 @@ func SeedDatePidHostMac() int64 {
 	return int64(s)
 }
 
-// PseudoRand provides a go-routine safe randomisation helper methods.
+// PseudoRand provides goroutine safe randomisation helper methods.
 type PseudoRand struct {
 	rand *rand.Rand
-	lk   sync.Mutex
+	mu   sync.Mutex
 }
 
 // SeedFunc can compute a pseudo RNG seed value.
@@ -86,7 +84,7 @@ type SeedFunc func() int64
 func NewPseudoRand(seeder SeedFunc) *PseudoRand {
 	var seed int64
 	if seeder == nil {
-		seed = defaultSeeder()
+		seed = DefaultSeeder()
 	} else {
 		seed = seeder()
 	}
@@ -96,8 +94,8 @@ func NewPseudoRand(seeder SeedFunc) *PseudoRand {
 // Reseed is exposed to allow tests to reseed the pseudo RNG to
 // allow for deterministic results.
 func (r *PseudoRand) Reseed(seed int64) {
-	r.lk.Lock()
-	defer r.lk.Unlock()
+	r.mu.Lock()
+	defer r.mu.Unlock()
 
 	r.rand.Seed(seed)
 }
@@ -111,8 +109,8 @@ const letters = "BCDFGHJKLMNPQRSTVWXYbcdfghjklmnpqrstvwxy0123456789"
 //
 // Not cryptographically secure.
 func (r *PseudoRand) RandomString(length int) string {
-	r.lk.Lock()
-	defer r.lk.Unlock()
+	r.mu.Lock()
+	defer r.mu.Unlock()
 
 	out := ""
 	for i := 0; i < length; i++ {
@@ -126,8 +124,8 @@ func (r *PseudoRand) RandomString(length int) string {
 // interval [0,d). Any zero or negative input duration results in a return
 // of zero duration.
 func (r *PseudoRand) RandomDuration(d time.Duration) time.Duration {
-	r.lk.Lock()
-	defer r.lk.Unlock()
+	r.mu.Lock()
+	defer r.mu.Unlock()
 
 	// Prevent a panic on <= 0, rather return 0
 	if d <= 0 {
