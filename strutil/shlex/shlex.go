@@ -414,3 +414,33 @@ func Split(s string) ([]string, error) {
 		subStrings = append(subStrings, word)
 	}
 }
+
+// Join returns a shell-escaped string version of the arguments in s.
+func Join(s []string) string {
+	quoted := make([]string, len(s))
+	for i, x := range s {
+		quoted[i] = Quote(x)
+	}
+	return strings.Join(quoted, " ")
+}
+
+// Quote returns a shell-escaped version of the single argument s.
+func Quote(s string) string {
+	if s == "" {
+		return `''`
+	}
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		switch {
+		case c >= 'a' && c <= 'z':
+		case c >= 'A' && c <= 'Z':
+		case c >= '0' && c <= '9':
+		case strings.IndexByte("_@%+=:,./-", c) >= 0:
+		default:
+			// The above cases are all the safe characters. If there are any
+			// other characters, quote the entire input.
+			return "'" + strings.ReplaceAll(s, "'", "'\"'\"'") + "'"
+		}
+	}
+	return s
+}
