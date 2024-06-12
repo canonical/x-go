@@ -363,3 +363,24 @@ func (strutilSuite) TestWordWrapPadded(c *check.C) {
 		c.Check(buf.String(), check.Equals, t.output)
 	}
 }
+
+func (strutilSuite) TestNumItems(c *check.C) {
+	tests := []struct {
+		n        int
+		singular string
+		plural   string
+		output   string
+	}{
+		{0, "item", "items", "0 items"},
+		{1, "item", "items", "1 item"},
+		{2, "item", "items", "2 items"},
+		{42, "item", "items", "42 items"},
+		{1, "new car", "new cars", "1 new car"},
+		{42, "new car", "new cars", "42 new cars"},
+	}
+	for _, test := range tests {
+		c.Logf("%d %q %q -> %q", test.n, test.singular, test.plural, test.output)
+		output := strutil.NumItems(test.n, test.singular, test.plural)
+		c.Check(output, check.Equals, test.output)
+	}
+}

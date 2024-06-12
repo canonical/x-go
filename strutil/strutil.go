@@ -365,3 +365,12 @@ func WordWrapPadded(out io.Writer, text []rune, pad string, termWidth int) error
 	}
 	return WordWrap(out, text, indent, indent, termWidth)
 }
+
+// NumItems returns the string form of the number of items: the singular form
+// (eg: "1 item") if n is 1, otherwise the plural form (eg: "7 items").
+func NumItems(n int, singular, plural string) string {
+	if n == 1 {
+		return "1 " + singular
+	}
+	return strconv.Itoa(n) + " " + plural
+}
