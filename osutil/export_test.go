@@ -23,7 +23,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/canonical/pebble/internals/osutil/sys"
+	"github.com/canonical/x-go/osutil/sys"
 )
 
 func FakeUserCurrent(f func() (*user.User, error)) func() {

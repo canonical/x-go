@@ -18,7 +18,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/canonical/pebble/internals/osutil"
+	"github.com/canonical/x-go/osutil"
 )
 
 // useFuse detects if we should be using squashfuse instead

@@ -21,7 +21,7 @@ import (
 
 	. "gopkg.in/check.v1"
 
-	"github.com/canonical/pebble/internals/osutil"
+	"github.com/canonical/x-go/osutil"
 )
 
 type mountinfoSuite struct{}

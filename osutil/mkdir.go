@@ -20,7 +20,7 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/canonical/pebble/internals/osutil/sys"
+	"github.com/canonical/x-go/osutil/sys"
 )
 
 // XXX: we need to come back and fix this; this is a hack to unblock us.

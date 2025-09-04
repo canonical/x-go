@@ -28,9 +28,9 @@ import (
 
 	. "gopkg.in/check.v1"
 
-	"github.com/canonical/pebble/internals/osutil"
-	"github.com/canonical/pebble/internals/osutil/sys"
-	"github.com/canonical/pebble/internals/testutil"
+	"github.com/canonical/x-go/osutil"
+	"github.com/canonical/x-go/osutil/sys"
+	"github.com/canonical/x-go/testutil"
 )
 
 type AtomicWriteTestSuite struct{}

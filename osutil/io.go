@@ -24,7 +24,7 @@ import (
 
 	"github.com/canonical/x-go/randutil"
 
-	"github.com/canonical/pebble/internals/osutil/sys"
+	"github.com/canonical/x-go/osutil/sys"
 )
 
 // AtomicWriteFlags are a bitfield of flags for AtomicWriteFile
