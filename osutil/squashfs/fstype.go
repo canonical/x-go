@@ -39,11 +39,7 @@ func useFuseImpl() bool {
 	}
 
 	virt := strings.TrimSpace(string(out))
-	if virt != "none" { // lint:ignore S1008 Should use 'return cond'
-		return true
-	}
-
-	return false
+	return virt != "none"
 }
 
 // FakeUseFuse is exported so useFuse can be overridden by testing.
