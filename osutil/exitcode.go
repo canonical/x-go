@@ -24,5 +24,5 @@ func ExitCode(runErr error) (e int, err error) {
 	if exitErr, ok := runErr.(*exec.ExitError); ok {
 		return exitErr.ExitCode(), nil
 	}
-	return e, runErr
+	return 0, runErr
 }
