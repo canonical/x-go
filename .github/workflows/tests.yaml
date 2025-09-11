@@ -44,3 +44,4 @@ jobs:
           fail_ci_if_error: true
           name: "Delta Report"
           verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
