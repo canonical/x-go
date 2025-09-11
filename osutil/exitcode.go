@@ -16,17 +16,13 @@ package osutil
 
 import (
 	"os/exec"
-	"syscall"
 )
 
 // ExitCode extract the exit code from the error of a failed cmd.Run() or the
 // original error if its not a exec.ExitError
 func ExitCode(runErr error) (e int, err error) {
-	// golang, you are kidding me, right?
 	if exitErr, ok := runErr.(*exec.ExitError); ok {
-		waitStatus := exitErr.Sys().(syscall.WaitStatus)
-		e = waitStatus.ExitStatus()
-		return e, nil
+		return exitErr.ExitCode(), nil
 	}
 	return e, runErr
 }
