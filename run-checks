@@ -159,7 +159,7 @@ install_staticcheck() {
     # This list will be updated as x-go moves to later Go versions.
     if [ "$GO_VERSION" -ge "118" ]; then
         # Go v1.18
-        go install "${PKG}@2025.1.1"
+        go install "${PKG}@2023.1"
     else
         print_newline
         print_red "Must use Go version >= 1.18"
