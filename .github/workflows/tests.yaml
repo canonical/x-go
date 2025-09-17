@@ -26,6 +26,25 @@ jobs:
         run: |
           VERBOSE=1 ./run-checks
 
+  root-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: ['1.18']
+
+    name: Root Tests - Go ${{ matrix.go }}
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ matrix.go }}
+
+    - name: Test
+      run: |
+        TEST_USER=runner TEST_GROUP=runner sudo -E -H go test ./...
+
   coverage:
     name: "codecov"
     runs-on: ubuntu-latest
