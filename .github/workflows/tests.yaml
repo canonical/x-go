@@ -58,8 +58,9 @@ jobs:
         run: |
           go test -race -coverprofile=coverage.txt -covermode=atomic ./...
       - name: Upload
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
           name: "Delta Report"
           verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
