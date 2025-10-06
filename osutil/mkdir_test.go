@@ -213,10 +213,10 @@ func (mkdirSuite) TestMakeParentsChmodAndChown(c *check.C) {
 		c.Skip("requires running as root")
 	}
 
-	username := os.Getenv("PEBBLE_TEST_USER")
-	group := os.Getenv("PEBBLE_TEST_GROUP")
+	username := os.Getenv("TEST_USER")
+	group := os.Getenv("TEST_GROUP")
 	if username == "" || group == "" {
-		c.Fatalf("must set PEBBLE_TEST_USER and PEBBLE_TEST_GROUP")
+		c.Fatalf("must set TEST_USER and TEST_GROUP")
 	}
 
 	u, err := user.Lookup(username)
