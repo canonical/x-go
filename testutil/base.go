@@ -18,8 +18,7 @@ import (
 	"gopkg.in/check.v1"
 )
 
-// BaseTest is a structure used as a base test suite for many of the pebble
-// tests.
+// BaseTest is a structure used as a base test suite for many other tests.
 type BaseTest struct {
 	cleanupHandlers []func()
 }
