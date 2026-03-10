@@ -66,6 +66,7 @@ func (o *OrderedMap) Del(key string) {
 			if k == key {
 				copy(o.keys[i:], o.keys[i+1:])
 				o.keys = o.keys[:len(o.keys)-1]
+				break
 			}
 		}
 	}
