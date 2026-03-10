@@ -38,6 +38,9 @@ var (
 // If the command hasn't had Setpgid set in its SysProcAttr, you'll probably end
 // up killing yourself.
 func KillProcessGroup(cmd *exec.Cmd) error {
+	if cmd.Process == nil {
+		return fmt.Errorf("cannot kill process group: process not started")
+	}
 	pgid, err := syscallGetpgid(cmd.Process.Pid)
 	if err != nil {
 		return err
