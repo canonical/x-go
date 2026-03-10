@@ -147,5 +147,5 @@ func (cmd *FakeCmd) BinDir() string {
 
 // Exe return the full path of the fake binary
 func (cmd *FakeCmd) Exe() string {
-	return filepath.Join(cmd.exeFile)
+	return cmd.exeFile
 }
