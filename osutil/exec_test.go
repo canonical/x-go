@@ -105,6 +105,12 @@ func (s *execSuite) TestKillProcessGroupKillsProcessGroup(c *C) {
 	c.Check(pid, Equals, -ppid)
 }
 
+func (s *execSuite) TestKillProcessGroupNotStarted(c *C) {
+	cmd := exec.Command("sleep", "1m")
+	err := osutil.KillProcessGroup(cmd)
+	c.Assert(err, ErrorMatches, "cannot kill process group: process not started")
+}
+
 func (s *execSuite) TestKillProcessGroupShyOfInit(c *C) {
 	defer osutil.FakeSyscallGetpgid(func(int) (int, error) { return 1, nil })()
 
